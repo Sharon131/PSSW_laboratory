@@ -27,32 +27,33 @@ endmodule
 module div(input [7:0] a, b,
 	   output zero,
 	   output [7:0] y);
-
+	assign zero = (b == 0);
+	assign y = a / b;
 endmodule
 
 module bit_and(input [7:0] a, b,
-	       output [7:0] y);
+	       	   output [7:0] y);
 	assign y = a & b;
 endmodule
 
 module bit_or(input [7:0] a, b,
-	      output [7:0] y);
+	      	  output [7:0] y);
 	assign y = a | b;
 endmodule
 
 module bit_xor(input [7:0] a, b,
-	       output [7:0] y);
+	       	   output [7:0] y);
 	assign y = a ^ b;
 endmodule
 
 module bit_neg(input [7:0] a,
-	       output [7:0] y);
+	       	   output [7:0] y);
 	assign y = ~a;
 endmodule
 
 module shift_right(input [7:0] a,
-		   output carry,
-	           output [7:0] y);
+		   		   output carry,
+	           	   output [7:0] y);
 	assign {y, carry} = a >> 1;
 endmodule
 
@@ -98,9 +99,9 @@ module ALU(input  [7:0] a,
 			input  [3:0] op,
 			output reg [7:0] result,
 			output carry,
-			output zero,
-			output parity,
-			output overflow);
+			output negative,
+			output overflow,
+			output zero);
 
 	wire [7:0] results [15:0];
 
@@ -121,7 +122,7 @@ module ALU(input  [7:0] a,
 	bit_on		set_bit(a, b, results[14]);
 	bit_off		clear_bit(a, b, results[15]);
 
-	always @(a, b, op)
+	always @(*)
 		case(op)
 		0: result = results[0];
 		1: result = results[1];
@@ -149,28 +150,34 @@ module alu_test;
 	reg [7:0] a,b;
 	reg [3:0] op;
 	wire carry;
-	wire zero;
-	wire parity;
+	wire negative;
 	wire overflow;
+	wire zero;
 	wire [7:0] y;
 
-	ALU alu1(a, b, op, y, carry, zero, parity, overflow);
+	ALU alu1(a, b, op, y, carry, negative, overflow, zero);
 
-// // definicja sygnalow wymuszajacych
+// definicja sygnalow wymuszajacych
 // integer i,j,k;
-// initial
-// 	begin
-// 		$dumpfile("alu.vcd");
-// 	  	$dumpvars(0, a, b, op, y, carry, zero, parity, overflow);
-// 		$monitor($time,": a=%d b=%d sel=%b | y=%d",a,b,y);
-	
-// 	k=2**roz;
-// 	for (i=0;i<k;i=i+1)
-// 		for (j=0;j<k;j=j+1)
-// 			begin
-// 			#10; a=i; b=j; s=0;
-// 			#10; s=1;
-// 			end
-// 		#10 $finish;
-// 	end
+initial
+	begin
+		$dumpfile("alu.vcd");
+	  	$dumpvars(0, a, b, op, y, carry, zero, negative, overflow);
+		$monitor($time,": a=%d b=%d op=%d | y=%d, c=%b, z=%b, n=%b, o=%b", a, b, op, y, carry, zero, negative, overflow);
+
+	#5; a = 250; b = 10; op = 0;
+	#10; a = 20;
+	#10; op = 2;
+	#10;
+
+	// k=2**roz;
+	// for (i=0;i<k;i=i+1)
+	// 	for (j=0;j<k;j=j+1)
+	// 		begin
+	// 		#10; a=i; b=j; s=0;
+	// 		#10; s=1;
+	// 		end
+	#10 $finish;
+
+	end
 endmodule
