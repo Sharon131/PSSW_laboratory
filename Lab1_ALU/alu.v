@@ -1,7 +1,7 @@
 `timescale 1ns/10ps
 
-module or3(input a, b, c,
-			output y);
+module or3(output y,
+			input a, b, c);
 	wire temp_wire;
 	or g1(temp_wire, a, b);
 	or g2(y, temp_wire, c);
@@ -114,7 +114,7 @@ endmodule
 /* Clearing b's bit in a */
 module bit_off(input [7:0] a, b,
 	       	   output [7:0] y);
-	assign y = a & !(1 << b);
+	assign y = a & ~(1 << b);
 endmodule
 
 module ALU(input  [7:0] a,
@@ -306,8 +306,10 @@ initial
 	#10; op = 5;					/* a | b */
 	#10; op = 6;					/* a ^ b */
 	#10; op = 7;					/* !a */
-	#10; op = 8;					/* a >> 1 */
-	#10; op = 9;					/* a << 1 */
+	#10; op = 8;					/* 'b100 >> 1 */
+	#10; a = 'b10000001;			/* 'b00000001 >> 1 */
+	#10; op = 9;					/* 'b10000001 << 1 */
+	#10; a = 'b00000100;			/* 'b0000100 << 1 */
 	#10; op = 10;					/* 4 == 6*/
 	#10; a = 10; b = 10;			/* 10 == 10 */
 	#10; op = 11;					/* 10 > 10 */
