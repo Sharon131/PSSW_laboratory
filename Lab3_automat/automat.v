@@ -1,13 +1,10 @@
-// automat2_2mo - automat wykrywaj�cy sekwencj� "101",
-//		  opis z 2 procesami, automat Moor'a
- 
 `timescale 1ns/10ps
 
 // definicja automatu
-module automat_2mo (input a, b, reset, clk,
+module automat_mp (input a, b, reset, clk,
 		    output reg w, m);
 
-    reg [2:0] state;	// tylko jedna zmienna do prechowywania stanu
+    reg [2:0] state, next_state;	// tylko jedna zmienna do prechowywania stanu
     parameter [2:0] S0=3'd0,S1=3'd1,S2=3'd2,S3=3'd3,S4=3'd4,S5=3'd5,S6=3'd6;
 
     always @(a, b, state)
@@ -32,57 +29,67 @@ module automat_2mo (input a, b, reset, clk,
     always @(a, b, state)		// Proces trzeci - funkcja wyjsc
         if (state==S0 || state==S2 || state==S5)
             if(a==1 && b==0)
+            begin
                 w <= a;
                 m <= b;
+            end
             else if (a==0 && b==1)
+            begin
                 w <= b;
                 m <= a;
+            end
             else
+            begin
                 w <= a;
                 m <= b;
+            end
         else if (state==S1 || state==S4)
+        begin
             w <= b;
             m <= a;
+        end
         else if (state==S3 || state==S6)
+        begin
             w <= a;
             m <= b;
+        end
 
 endmodule
 
-// urealnienie uk�adu i testowanie
-module  automat_2mo_test;
+// urealnienie ukladu i testowanie
+module  automat_mp_test;
 	
-	reg we, reset, zegar;
-	wire wy;
+	reg we1, we2, reset, zegar;
+	wire w, m;
 	
-	automat_2mo automat(we,reset,zegar,wy);
+	automat_mp automat(we1, we2, reset, zegar, w, m);
 
-// definicja sygna��w wymuszaj�cych
+// definicja sygnalow wymuszajacych
 
 always
 	#10 zegar=~zegar;
 
 initial
     begin
-	$dumpfile("automat2_2mo.vcd");
-  	$dumpvars;//(0, we, reset, zegar, wy);
-	$monitor($time,": reset=%b we=%b clk=%b | wy=%b",reset,we,zegar,wy);
+	$dumpfile("automat.vcd");
+  	$dumpvars;//(0, we1, we2, reset, zegar, w, m);
+	$monitor($time,": reset=%b we1=%b we2=%bclk=%b | w=%b m=%b", reset, we1, we2, zegar, w, m);
 
-        zegar=1'b0; reset=1'b0; we=1'b0;
-    #15 we=1'b0;
+    zegar=1'b0; reset=1'b0; we1=1'b0; we2=1'b0;
+    #15 we1=1'b0;
     #20 reset=1'b1;
-    #20 we=1'b1;
-    #30 we=1'b0;
-    #20 we=1'b0;
-    #30 we=1'b1;
-    #20 we=1'b0;
-    #20 we=1'b1;
-    #20 we=1'b1;
-    #30 we=1'b0;
-    #20 we=1'b1;
-    #20 we=1'b0;
-    #20 we=1'b1;
-    #20 we=1'b0;
+    #20 we1=1'b1;
+    #30 we1=1'b0;
+    #20 we1=1'b0;
+    #30 we1=1'b1;
+    #20 we1=1'b0;
+    #20 we1=1'b1;
+    #20 we1=1'b1;
+    #30 we1=1'b0;
+    #20 we1=1'b1;
+    #20 we1=1'b0;
+    #20 we1=1'b1;
+    #20 we1=1'b0;
     #10 $finish;
     end
 endmodule
