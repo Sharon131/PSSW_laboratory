@@ -3,6 +3,7 @@ coverage/
 *.gtkw
 *.docx
 *.pdf
+*.drawio
 */ZAD*
 alu
 licznik
