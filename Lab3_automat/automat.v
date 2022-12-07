@@ -4,7 +4,7 @@
 module automat_mp (input a, b, reset, clk,
 		    output reg w, m);
 
-    reg [2:0] state, next_state;	// tylko jedna zmienna do prechowywania stanu
+    reg [2:0] state, next_state;
     parameter [2:0] S0=3'd0,S1=3'd1,S2=3'd2,S3=3'd3,S4=3'd4,S5=3'd5,S6=3'd6;
 
     always @(a, b, state)
@@ -22,7 +22,7 @@ module automat_mp (input a, b, reset, clk,
         S6: next_state <= S0;
         endcase
 
-    always @(posedge clk)	// Proced drugi - blok przerzutnikow 
+    always @(posedge clk)	// Proces drugi - blok przerzutnikow 
         if (!reset) state<=0;
         else state<=next_state;
 
@@ -56,15 +56,13 @@ module automat_mp (input a, b, reset, clk,
 
 endmodule
 
-// urealnienie ukladu i testowanie
+// testbench
 module  automat_mp_test;
 	
 	reg we1, we2, reset, zegar;
 	wire w, m;
 	
 	automat_mp automat(we1, we2, reset, zegar, w, m);
-
-// definicja sygnalow wymuszajacych
 
 always
 	#10 zegar=~zegar;
@@ -77,19 +75,32 @@ initial
 
     zegar=1'b0; reset=1'b0; we1=1'b0; we2=1'b0;
     #15 we1=1'b0;
-    #20 reset=1'b1;
-    #20 we1=1'b1;
-    #30 we1=1'b0;
-    #20 we1=1'b0;
-    #30 we1=1'b1;
-    #20 we1=1'b0;
-    #20 we1=1'b1;
-    #20 we1=1'b1;
-    #30 we1=1'b0;
-    #20 we1=1'b1;
-    #20 we1=1'b0;
-    #20 we1=1'b1;
-    #20 we1=1'b0;
-    #10 $finish;
+    // first case: a > b
+    #20; reset=1'b1; we1=1'b1;
+    #20; we1=1'b0; we2=1'b1;
+    #20; we1=1'b1; we2=1'b1;
+
+    // second case a = b
+    #20; we1=1'b0; we2=1'b0;
+    #20; we1=1'b1; we2=1'b1;
+    #20; we1=1'b1; we2=1'b1;
+
+    // third case: a < b
+    #20; we1=1'b0; we2=1'b1;
+    #20; we1=1'b0; we2=1'b1;
+    #20; we1=1'b1; we2=1'b1;
+
+    // fourth case: a < b, but on third bit
+    #20; we1=1'b0; we2=1'b0;
+    #20; we1=1'b1; we2=1'b1;
+    #20; we1=1'b0; we2=1'b1;
+
+    // fifth case: a < b, but on second bit
+    #20; we1=1'b0; we2=1'b0;
+    #20; we1=1'b0; we2=1'b1;
+    #20; we1=1'b0; we2=1'b0;
+
+    #30 $finish;
+
     end
 endmodule
